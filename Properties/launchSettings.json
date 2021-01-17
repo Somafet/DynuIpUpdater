@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "DynuIpUpdater": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
