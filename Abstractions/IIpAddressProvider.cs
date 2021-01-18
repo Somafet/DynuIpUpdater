@@ -7,6 +7,9 @@ namespace DynuIpUpdater.Abstractions
 {
     public interface IIpAddressProvider
     {
-        Task<string> GetCurrentIpAddressAsync();
+        Task<string> FetchCurrentIpAddressAsync();
+
+        string GetPreviousIpAddress();
+        string GetCurrentIpAddress();
     }
 }

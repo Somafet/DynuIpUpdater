@@ -19,8 +19,6 @@ namespace DynuIpUpdater
         private readonly IIpAddressProvider _ipAddressProvider;
         private readonly IIpAddressUpdater _ipAddressUpdater;
 
-        private string _previousIpAddress = string.Empty;
-
         public Worker(ILogger<Worker> logger, IOptions<AppConfig> appConfig, IIpAddressProvider ipAddressProvider, IIpAddressUpdater ipAddressUpdater)
         {
             _logger = logger;
@@ -33,12 +31,11 @@ namespace DynuIpUpdater
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var ipAddress = await _ipAddressProvider.GetCurrentIpAddressAsync();
+                var ipAddress = await _ipAddressProvider.FetchCurrentIpAddressAsync();
 
-                if (_previousIpAddress != ipAddress)
+                if (_ipAddressProvider.GetPreviousIpAddress() != ipAddress)
                 {
                     await _ipAddressUpdater.UpdateIpAddressAsync(ipAddress);
-                    _previousIpAddress = ipAddress;
                 }
 
                 await Task.Delay(_appConfig.IpUpdateIntervalMilliSeconds, stoppingToken);

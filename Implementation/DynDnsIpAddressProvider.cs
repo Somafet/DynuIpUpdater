@@ -18,25 +18,35 @@ namespace DynuIpUpdater.Implementation
         private readonly ILogger<DynDnsIpAddressProvider> _logger;
         private readonly AppConfig _appConfig;
 
+        private string _previousIpAddress;
+        private string _currentIpAddress;
+
         public DynDnsIpAddressProvider(ILogger<DynDnsIpAddressProvider> logger, IOptions<AppConfig> appConfig)
         {
             _logger = logger;
             _appConfig = appConfig.Value;
         }
 
-        public async Task<string> GetCurrentIpAddressAsync()
+        public async Task<string> FetchCurrentIpAddressAsync()
         {
             _logger.LogDebug("Fetching current IP address");
             var dynResponseData = await httpClient.GetAsync(new Uri(_appConfig.IpAddressLookupProvider));
-            httpClient.DeleteAsync("google.com");
 
             var dynContent = await dynResponseData.Content.ReadAsStringAsync();
             Regex ipV4Pattern = new Regex(@"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b");
 
             Match matchedIpAddress = ipV4Pattern.Match(dynContent);
-            _logger.LogDebug($"Current IP Address: {matchedIpAddress.Value}");
 
-            return matchedIpAddress.Value;
+            _previousIpAddress = _currentIpAddress;
+            _currentIpAddress = matchedIpAddress.Value;
+
+            _logger.LogDebug($"Current IP Address: {_currentIpAddress}");
+
+            return _currentIpAddress;
         }
+
+        public string GetCurrentIpAddress() => _currentIpAddress;
+
+        public string GetPreviousIpAddress() => _previousIpAddress;
     }
 }
